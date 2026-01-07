@@ -10,11 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="avoid.png" />
     <None Remove="background.jpg" />
     <None Remove="bird.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="avoid.png" />
     <Resource Include="background.jpg">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
