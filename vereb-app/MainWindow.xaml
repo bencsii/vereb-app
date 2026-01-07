@@ -6,7 +6,21 @@
         xmlns:local="clr-namespace:vereb_app"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+	<Grid>
+		<Grid.Background>
+			<ImageBrush ImageSource="Images/background.png"
+                    Stretch="UniformToFill"/>
+		</Grid.Background>
 
-    </Grid>
+
+		<Canvas Margin="0,0,-4,0">
+			<Canvas.Background>
+				<ImageBrush ImageSource="/background.jpg"/>
+			</Canvas.Background>
+			<Image x:Name="i" Source="/bird.png" Height="50" Width="50" Canvas.Left="4" Canvas.Top="149" >
+
+			</Image>
+
+		</Canvas>
+	</Grid>
 </Window>
