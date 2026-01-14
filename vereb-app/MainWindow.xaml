@@ -7,19 +7,17 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
 	<Grid>
-		<Grid.Background>
-			<ImageBrush ImageSource="Images/background.png"
-                    Stretch="UniformToFill"/>
-		</Grid.Background>
+		
 
-
-		<Canvas Margin="0,1,-4,-1">
+		<Canvas Margin="0,1,-4,-1" Name="canvas">
 			<Canvas.Background>
 				<ImageBrush ImageSource="/background.jpg"/>
 			</Canvas.Background>
-			<Image x:Name="i" Source="/bird.png" Height="50" Width="50" Canvas.Left="4" Canvas.Top="149" >
+			<Image x:Name="bird" Source="/bird.png" Height="50" Width="50" Canvas.Left="4" Canvas.Top="149" >
 			</Image>
-			<Image x:Name="avoid" Source="/avoid.png" Height="268" Width="252" Canvas.Left="271" Canvas.Top="-8"  />
+			<Rectangle x:Name="columnUp" Height="183" Canvas.Left="272" Fill="#FFCE2F2F" Stroke="#FFCE2F2F" Canvas.Top="5" Width="57" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+			<Rectangle x:Name="columnDown" Height="183" Canvas.Left="271" Fill="#FFCE2F2F" Stroke="#FFCE2F2F" Canvas.Top="252" Width="57" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
 		</Canvas>
 	</Grid>
 </Window>
