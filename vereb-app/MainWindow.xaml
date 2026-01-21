@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
 	<Grid>
-		
+
 
 		<Canvas Margin="0,1,-4,-1" Name="canvas">
 			<Canvas.Background>
@@ -15,8 +15,8 @@
 			</Canvas.Background>
 			<Image x:Name="bird" Source="/bird.png" Height="50" Width="50" Canvas.Left="4" Canvas.Top="149" >
 			</Image>
-			<Rectangle x:Name="columnUp" Height="183" Canvas.Left="272" Fill="#FFCE2F2F" Stroke="#FFCE2F2F" Canvas.Top="5" Width="57" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-			<Rectangle x:Name="columnDown" Height="183" Canvas.Left="271" Fill="#FFCE2F2F" Stroke="#FFCE2F2F" Canvas.Top="252" Width="57" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+			<Rectangle x:Name="columnUp" Height="175" Canvas.Left="272" Stroke="#FF307522" Canvas.Top="-57" Width="57" HorizontalAlignment="Center" VerticalAlignment="Top" Fill="#FF307522"/>
+			<Rectangle x:Name="columnDown" Height="431" Canvas.Left="271" Fill="#FF307522" Stroke="#FF307522" Canvas.Top="334" Width="57" HorizontalAlignment="Center" VerticalAlignment="Top"/>
 
 		</Canvas>
 	</Grid>

@@ -2,31 +2,26 @@
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace vereb_app
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
-    {
+	public partial class MainWindow : Window
+	{
 		DispatcherTimer gameTimer = new DispatcherTimer();
 
-		double birdY = 149;      
-		double gravity = 2.2; 
+		double birdY = 149;
+		double gravity = 2.2;
 		double jumpForce = 30;
-		double speed = 10;
 
-		
+		double columnSpeed = 5;
+		int score = 0;
+		bool gameOver = false;
+		bool scoreAdded = false;
+
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -40,22 +35,124 @@ namespace vereb_app
 
 		private void GameLoop(object sender, System.EventArgs e)
 		{
-			birdY += gravity; 
+			if (gameOver) return;
+
+			birdY += gravity;
 			Canvas.SetTop(bird, birdY);
+
+			MoveRectangle();
+			CheckCollision();
+			AddScore();
 		}
 
 		private void OnKeyDown(object sender, KeyEventArgs e)
 		{
-			if (e.Key == Key.Space)
+			if (e.Key == Key.Space && !gameOver)
 			{
 				birdY -= jumpForce;
 			}
+			else if (e.Key == Key.Space && gameOver)
+			{
+				RestartGame();
+			}
 		}
 
-		private void generateRectangle()
+		private void MoveRectangle()
 		{
+			double leftUp = Canvas.GetLeft(columnUp);
+			double leftDown = Canvas.GetLeft(columnDown);
 
+			leftUp -= columnSpeed;
+			leftDown -= columnSpeed;
+
+			if (leftUp < -60)
+			{
+				leftUp = 800;
+				leftDown = 800;
+				scoreAdded = false;
+				RandomLocation();
+			}
+
+			Canvas.SetLeft(columnUp, leftUp);
+			Canvas.SetLeft(columnDown, leftDown);
 		}
 
+		private void CheckCollision()
+		{
+			Rect birdRect = new Rect(
+				Canvas.GetLeft(bird),
+				Canvas.GetTop(bird),
+				bird.Width,
+				bird.Height);
+
+			Rect columnUpRect = new Rect(
+				Canvas.GetLeft(columnUp),
+				Canvas.GetTop(columnUp),
+				columnUp.Width,
+				columnUp.Height);
+
+			Rect columnDownRect = new Rect(
+				Canvas.GetLeft(columnDown),
+				Canvas.GetTop(columnDown),
+				columnDown.Width,
+				columnDown.Height);
+
+			if (birdRect.IntersectsWith(columnUpRect) ||
+				birdRect.IntersectsWith(columnDownRect))
+			{
+				EndGame();
+			}
+		}
+
+		private void EndGame()
+		{
+			gameOver = true;
+			gameTimer.Stop();
+			MessageBox.Show("Game Over! Score: " + score);
+		}
+
+		private void RandomLocation()
+		{
+			Random random = new Random();
+
+			int gapSize = 130;
+			int minTop = -100;
+			int maxTop = 0;
+
+			int topHeight = random.Next(minTop, maxTop);
+
+			Canvas.SetTop(columnUp, topHeight);
+			Canvas.SetTop(columnDown, topHeight + columnUp.Height + gapSize);
+		}
+
+		private void RestartGame()
+		{
+			birdY = 149;
+			Canvas.SetTop(bird, birdY);
+
+			Canvas.SetLeft(columnUp, 800);
+			Canvas.SetLeft(columnDown, 800);
+
+			score = 0;
+			scoreAdded = false;
+			gameOver = false;
+
+			RandomLocation();
+			gameTimer.Start();
+		}
+
+		private void AddScore()
+		{
+			if (scoreAdded) return;
+
+			double columnX = Canvas.GetLeft(columnUp);
+			double birdX = Canvas.GetLeft(bird);
+
+			if (columnX + columnUp.Width < birdX)
+			{
+				score++;
+				scoreAdded = true;
+			}
+		}
 	}
 }
