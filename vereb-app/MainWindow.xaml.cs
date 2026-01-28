@@ -18,6 +18,8 @@ namespace vereb_app
 		double jumpForce = 30;
 
 		double columnSpeed = 5;
+		double columnReset = 300;
+
 		int score = 0;
 		bool gameOver = false;
 		bool scoreAdded = false;
@@ -26,7 +28,7 @@ namespace vereb_app
 		{
 			InitializeComponent();
 
-			gameTimer.Interval = System.TimeSpan.FromMilliseconds(20);
+			gameTimer.Interval = TimeSpan.FromMilliseconds(20);
 			gameTimer.Tick += GameLoop;
 			gameTimer.Start();
 
@@ -40,7 +42,7 @@ namespace vereb_app
 			birdY += gravity;
 			Canvas.SetTop(bird, birdY);
 
-			MoveRectangle();
+			MoveColumns();
 			CheckCollision();
 			AddScore();
 		}
@@ -57,7 +59,7 @@ namespace vereb_app
 			}
 		}
 
-		private void MoveRectangle()
+		private void MoveColumns()
 		{
 			double leftUp = Canvas.GetLeft(columnUp);
 			double leftDown = Canvas.GetLeft(columnDown);
@@ -65,10 +67,11 @@ namespace vereb_app
 			leftUp -= columnSpeed;
 			leftDown -= columnSpeed;
 
+			
 			if (leftUp < -60)
 			{
-				leftUp = 800;
-				leftDown = 800;
+				leftUp = columnReset;
+				leftDown = columnReset;
 				scoreAdded = false;
 				RandomLocation();
 			}
@@ -130,8 +133,8 @@ namespace vereb_app
 			birdY = 149;
 			Canvas.SetTop(bird, birdY);
 
-			Canvas.SetLeft(columnUp, 800);
-			Canvas.SetLeft(columnDown, 800);
+			Canvas.SetLeft(columnUp, columnReset);
+			Canvas.SetLeft(columnDown, columnReset);
 
 			score = 0;
 			scoreAdded = false;
