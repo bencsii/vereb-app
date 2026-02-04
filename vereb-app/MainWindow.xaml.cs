@@ -1,161 +1,232 @@
-﻿using System.Text;
-using System.Threading;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace vereb_app
 {
-	public partial class MainWindow : Window
-	{
-		DispatcherTimer gameTimer = new DispatcherTimer();
+    public partial class MainWindow : Window
+    {
+        DispatcherTimer gameTimer = new DispatcherTimer();
+        DispatcherTimer weatherTimer = new DispatcherTimer();
+        Random random = new Random();
 
-		double birdY = 149;
-		double gravity = 2.2;
-		double jumpForce = 30;
+        double birdY = 149;
+        double birdVelocity = 0;
+        double gravity = 1;
 
-		double columnSpeed = 5;
-		double columnReset = 300;
+        double jumpForce = -12;
+        double JumpForce2 = -12;
 
-		int score = 0;
-		bool gameOver = false;
-		bool scoreAdded = false;
+        double rainJumpForce = -6;
+        
 
-		public MainWindow()
-		{
-			InitializeComponent();
+        Rectangle fogLayer;
+        bool isFogActive = false;
+        bool isRaining = false;
 
-			gameTimer.Interval = TimeSpan.FromMilliseconds(20);
-			gameTimer.Tick += GameLoop;
-			gameTimer.Start();
+        List<PipePair> pipes = new List<PipePair>();
+        double pipeSpeed = 5;
+        double pipeStartX = 800;
+        int pipeGap = 140;
 
-			this.KeyDown += OnKeyDown;
-		}
+        int score = 0;
+        bool gameOver = false;
 
-		private void GameLoop(object sender, System.EventArgs e)
-		{
-			if (gameOver) return;
+        public MainWindow()
+        {
+            InitializeComponent();
 
-			birdY += gravity;
-			Canvas.SetTop(bird, birdY);
+            SetupPipes();
 
-			MoveColumns();
-			CheckCollision();
-			AddScore();
-		}
+            weatherTimer.Interval = TimeSpan.FromSeconds(random.Next(5, 11));
+            weatherTimer.Tick += (s, e) =>
+            {
+                if (random.Next(0, 2) == 0)
+                    Rain();
+                else
+                    Fog();
+            };
+            weatherTimer.Start();
 
-		private void OnKeyDown(object sender, KeyEventArgs e)
-		{
-			if (e.Key == Key.Space && !gameOver)
-			{
-				birdY -= jumpForce;
-			}
-			else if (e.Key == Key.Space && gameOver)
-			{
-				RestartGame();
-			}
-		}
+            gameTimer.Interval = TimeSpan.FromMilliseconds(20);
+            gameTimer.Tick += GameLoop;
+            gameTimer.Start();
 
-		private void MoveColumns()
-		{
-			double leftUp = Canvas.GetLeft(columnUp);
-			double leftDown = Canvas.GetLeft(columnDown);
+            this.KeyDown += OnKeyDown;
+        }
 
-			leftUp -= columnSpeed;
-			leftDown -= columnSpeed;
+        private void GameLoop(object sender, EventArgs e)
+        {
+            if (gameOver) return;
 
-			
-			if (leftUp < -60)
-			{
-				leftUp = columnReset;
-				leftDown = columnReset;
-				scoreAdded = false;
-				RandomLocation();
-			}
+            birdVelocity += gravity;
+            birdY += birdVelocity;
+            Canvas.SetTop(bird, birdY);
 
-			Canvas.SetLeft(columnUp, leftUp);
-			Canvas.SetLeft(columnDown, leftDown);
-		}
+            MovePipes();
+            CheckCollision();
+        }
 
-		private void CheckCollision()
-		{
-			Rect birdRect = new Rect(
-				Canvas.GetLeft(bird),
-				Canvas.GetTop(bird),
-				bird.Width,
-				bird.Height);
+        private void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Space && !gameOver)
+                birdVelocity = jumpForce;
+            else if (e.Key == Key.Space && gameOver)
+                RestartGame();
+        }
 
-			Rect columnUpRect = new Rect(
-				Canvas.GetLeft(columnUp),
-				Canvas.GetTop(columnUp),
-				columnUp.Width,
-				columnUp.Height);
+        private void SetupPipes()
+        {
+            pipes.Add(new PipePair(columnUp, columnDown, 600));
+            pipes.Add(new PipePair(columnUp2, columnDown2, 900));
+            pipes.Add(new PipePair(columnUp3, columnDown3, 1200));
 
-			Rect columnDownRect = new Rect(
-				Canvas.GetLeft(columnDown),
-				Canvas.GetTop(columnDown),
-				columnDown.Width,
-				columnDown.Height);
+            foreach (var pipe in pipes)
+                RandomizePipe(pipe);
+        }
 
-			if (birdRect.IntersectsWith(columnUpRect) ||
-				birdRect.IntersectsWith(columnDownRect))
-			{
-				EndGame();
-			}
-		}
+        private void MovePipes()
+        {
+            foreach (var pipe in pipes)
+            {
+                double x = Canvas.GetLeft(pipe.Top);
+                x -= pipeSpeed;
 
-		private void EndGame()
-		{
-			gameOver = true;
-			gameTimer.Stop();
-			MessageBox.Show("Game Over! Score: " + score);
-		}
+                if (x < -80)
+                {
+                    x = pipeStartX;
+                    RandomizePipe(pipe);
+                    score++;
+                }
 
-		private void RandomLocation()
-		{
-			Random random = new Random();
+                Canvas.SetLeft(pipe.Top, x);
+                Canvas.SetLeft(pipe.Bottom, x);
+            }
+        }
 
-			int gapSize = 130;
-			int minTop = -100;
-			int maxTop = 0;
+        private void RandomizePipe(PipePair pipe)
+        {
+            int topHeight = random.Next(-120, -20);
+            Canvas.SetTop(pipe.Top, topHeight);
+            Canvas.SetTop(pipe.Bottom, topHeight + pipe.Top.Height + pipeGap);
+        }
 
-			int topHeight = random.Next(minTop, maxTop);
+        private void CheckCollision()
+        {
+            Rect birdRect = new Rect(Canvas.GetLeft(bird), Canvas.GetTop(bird), bird.Width, bird.Height);
 
-			Canvas.SetTop(columnUp, topHeight);
-			Canvas.SetTop(columnDown, topHeight + columnUp.Height + gapSize);
-		}
+            if (birdY < 0 || birdY > canvas.ActualHeight - bird.Height)
+                EndGame();
 
-		private void RestartGame()
-		{
-			birdY = 149;
-			Canvas.SetTop(bird, birdY);
+            foreach (var pipe in pipes)
+            {
+                Rect topRect = new Rect(Canvas.GetLeft(pipe.Top), Canvas.GetTop(pipe.Top), pipe.Top.Width, pipe.Top.Height);
+                Rect bottomRect = new Rect(Canvas.GetLeft(pipe.Bottom), Canvas.GetTop(pipe.Bottom), pipe.Bottom.Width, pipe.Bottom.Height);
 
-			Canvas.SetLeft(columnUp, columnReset);
-			Canvas.SetLeft(columnDown, columnReset);
+                if (birdRect.IntersectsWith(topRect) || birdRect.IntersectsWith(bottomRect))
+                    EndGame();
+            }
+        }
 
-			score = 0;
-			scoreAdded = false;
-			gameOver = false;
+        private void EndGame()
+        {
+            gameOver = true;
+            gameTimer.Stop();
+            MessageBox.Show("Game Over! Score: " + score);
+        }
 
-			RandomLocation();
-			gameTimer.Start();
-		}
+        private void RestartGame()
+        {
+            birdY = 149;
+            birdVelocity = 0;
+            Canvas.SetTop(bird, birdY);
 
-		private void AddScore()
-		{
-			if (scoreAdded) return;
+            score = 0;
+            gameOver = false;
 
-			double columnX = Canvas.GetLeft(columnUp);
-			double birdX = Canvas.GetLeft(bird);
+            jumpForce = JumpForce2;
+            isRaining = false;
 
-			if (columnX + columnUp.Width < birdX)
-			{
-				score++;
-				scoreAdded = true;
-			}
-		}
-	}
+            isFogActive = false;
+            if (fogLayer != null)
+                canvas.Children.Remove(fogLayer);
+
+            SetupPipes();
+            gameTimer.Start();
+        }
+
+        private void Rain()
+        {
+            if (isRaining) return;
+
+            isRaining = true;
+            jumpForce = rainJumpForce;
+
+            DispatcherTimer rainTimer = new DispatcherTimer();
+            rainTimer.Interval = TimeSpan.FromSeconds(3);
+
+            rainTimer.Tick += (s, e) =>
+            {
+                jumpForce = JumpForce2;
+                isRaining = false;
+
+                rainTimer.Stop();
+                weatherTimer.Interval = TimeSpan.FromSeconds(random.Next(5, 11));
+            };
+
+            rainTimer.Start();
+        }
+
+        private void Fog()
+        {
+            if (isFogActive) return;
+
+            isFogActive = true;
+
+            fogLayer = new Rectangle
+            {
+                Width = canvas.ActualWidth,
+                Height = canvas.ActualHeight,
+                Fill = System.Windows.Media.Brushes.LightGray,
+                Opacity = 0.4
+            };
+
+            Canvas.SetLeft(fogLayer, 0);
+            Canvas.SetTop(fogLayer, 0);
+
+            canvas.Children.Add(fogLayer);
+
+            DispatcherTimer fogTimer = new DispatcherTimer();
+            fogTimer.Interval = TimeSpan.FromSeconds(4);
+
+            fogTimer.Tick += (s, e) =>
+            {
+                canvas.Children.Remove(fogLayer);
+                isFogActive = false;
+
+                fogTimer.Stop();
+                weatherTimer.Interval = TimeSpan.FromSeconds(random.Next(5, 11));
+            };
+
+            fogTimer.Start();
+        }
+    }
+
+    class PipePair
+    {
+        public Rectangle Top { get; }
+        public Rectangle Bottom { get; }
+
+        public PipePair(Rectangle top, Rectangle bottom, double startX)
+        {
+            Top = top;
+            Bottom = bottom;
+            Canvas.SetLeft(Top, startX);
+            Canvas.SetLeft(Bottom, startX);
+        }
+    }
 }

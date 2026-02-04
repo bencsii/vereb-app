@@ -6,18 +6,22 @@
         xmlns:local="clr-namespace:vereb_app"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-	<Grid>
+    <Grid>
+        <Canvas Margin="0,1,-4,-1" x:Name="canvas">
+            <Canvas.Background>
+                <ImageBrush ImageSource="/background.jpg"/>
+            </Canvas.Background>
 
+            <Image x:Name="bird" Source="/bird.png" Height="50" Width="50" Canvas.Left="4" Canvas.Top="149"/>
 
-		<Canvas Margin="0,1,-4,-1" Name="canvas">
-			<Canvas.Background>
-				<ImageBrush ImageSource="/background.jpg"/>
-			</Canvas.Background>
-			<Image x:Name="bird" Source="/bird.png" Height="50" Width="50" Canvas.Left="4" Canvas.Top="149" >
-			</Image>
-			<Rectangle x:Name="columnUp" Height="175" Canvas.Left="272" Stroke="#FF307522" Canvas.Top="-57" Width="57" HorizontalAlignment="Center" VerticalAlignment="Top" Fill="#FF307522"/>
-			<Rectangle x:Name="columnDown" Height="431" Canvas.Left="271" Fill="#FF307522" Stroke="#FF307522" Canvas.Top="334" Width="57" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <Rectangle x:Name="columnUp" Height="175" Width="57" Fill="#FF307522"/>
+            <Rectangle x:Name="columnDown" Height="431" Width="57" Fill="#FF307522"/>
 
-		</Canvas>
-	</Grid>
+            <Rectangle x:Name="columnUp2" Height="175" Width="57" Fill="#FF307522"/>
+            <Rectangle x:Name="columnDown2" Height="431" Width="57" Fill="#FF307522"/>
+
+            <Rectangle x:Name="columnUp3" Height="175" Width="57" Fill="#FF307522"/>
+            <Rectangle x:Name="columnDown3" Height="431" Width="57" Fill="#FF307522"/>
+        </Canvas>
+    </Grid>
 </Window>
